@@ -1171,3 +1171,72 @@ HIGH LEVEL
         </dependency>
 
 ```
+
+### 词库扩展
+```text
+GET /shop/_analyze
+{
+  "analyzer": "ik_smart",
+  "text": ["凯悦"]
+}
+
+{
+  "tokens" : [
+    {
+      "token" : "凯",
+      "start_offset" : 0,
+      "end_offset" : 1,
+      "type" : "CN_CHAR",
+      "position" : 0
+    },
+    {
+      "token" : "悦",
+      "start_offset" : 1,
+      "end_offset" : 2,
+      "type" : "CN_CHAR",
+      "position" : 1
+    }
+  ]
+}
+
+定制化分词库
+elasticsearch-7.3.0/plugins/analysis-ik/config
+new_word.dic
+
+
+修改IKAnalyzer.cfg.xml
+<!--用户可以在这里配置自己的扩展字典 -->
+<entry key="ext_dict">new_word.dic</entry>
+
+
+{
+  "tokens" : [
+    {
+      "token" : "凯悦",
+      "start_offset" : 0,
+      "end_offset" : 2,
+      "type" : "CN_WORD",
+      "position" : 0
+    }
+  ]
+}
+
+注意:创建索引的时候,并不是按照当前最新的词库来进行倒排索引的
+1-重建索引
+
+
+2-updateByQuery
+POST /shop/_update_by_query
+{
+  "query":{
+    "bool":{
+      "must":[
+        {"term":{"name":"凯"}},
+        {"term":{"name":"悦"}}
+        ]
+    }
+  }
+}
+
+
+```
