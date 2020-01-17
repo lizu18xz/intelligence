@@ -1239,4 +1239,173 @@ POST /shop/_update_by_query
 }
 
 
+热更新词库:
+<entry key="ext_dict">http:site.com/getCustomDic</entry>
+Http请求需要返回两个头部,last-modified和etag
+有一个发生变化,ik插件就会重新下载
+
+
 ```
+
+### 同义词
+```text
+
+
+语义相近或相同
+品牌类关联
+搜索它等于搜索它
+
+elasticsearch-7.3.0/plugins/analysis-ik/config
+新增文件synomyms.txt
+
+凯悦,锡伯,红桃
+
+代表他们是同义词
+
+#定义门店索引结构-支持同义词
+PUT /shop
+{
+   "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "analysis":{
+    "filter":{
+      "my_synonym_filter":{
+        "type":"synonym",
+        "synonyms_path":"analysis-ik/synonyms.txt"
+      }
+     },
+    "analyzer":{
+      "ik_syno":{
+        "type":"custom",
+        "tokenizer":"ik_smart",
+        "filter":["my_synonym_filter"]
+      },
+      "ik_syno_max":{
+        "type":"custom",
+        "tokenizer":"ik_max_word",
+        "filter":["my_synonym_filter"]
+      }
+    }
+   }
+  },
+  "mappings": {
+    "properties": {
+      "id":{
+        "type": "integer"
+      },
+      "name":{
+        "type": "text",
+        "analyzer": "ik_syno_max",
+        "search_analyzer": "ik_syno"
+      },
+      "tags":{
+        "type": "text",
+        "analyzer": "whitespace",
+        "fielddata": true
+      },
+      "location":{
+        "type": "geo_point"
+      },
+      "remark_score":{
+        "type": "double"
+      },
+      "price_per_man":{
+        "type": "integer"
+      },
+      "category_id":{
+        "type": "integer"
+      },
+      "category_name":{
+        "type": "keyword"
+      },
+      "sell_id":{
+        "type": "integer"
+      },
+      "seller_remark_score":{
+        "type": "double"
+      },
+      "seller_disabled_flag":{
+        "type": "integer"
+      }
+    }
+  }
+}
+
+
+GET /shop/_analyze
+{
+  "analyzer": "ik_smart",
+  "text": ["凯悦"]
+}
+
+
+```
+
+### 相关性重塑
+```text
+让搜索引擎理解语义
+影响召回和排序
+
+比如我搜休息住宿,搜索不到东西
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
